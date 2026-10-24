@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Ninja Tab",
+  "version": "1.1.0",
+  "description": "Disguise any tab as Google Docs, Gmail and more. Boss Key, panic button, PIN lock and history cleanup.",
+  "permissions": [
+    "storage",
+    "history",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "rules.js",
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ninja Tab",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "commands": {
+    "toggle-boss-key": {
+      "suggested_key": {
+        "default": "Alt+Shift+B",
+        "mac": "Alt+Shift+B"
+      },
+      "description": "Toggle camouflage or redirect on the current tab"
+    },
+    "panic-all": {
+      "description": "Panic: hide every tab that matches a rule"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ninja Tab</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Line icons, used with <svg><use href="#i-name"/></svg> -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="i-settings" viewBox="0 0 24 24"><line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/><line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="16" y1="18" x2="16" y2="22"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+    <symbol id="i-locate" viewBox="0 0 24 24"><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/><polyline points="12 7 12 12 15 14"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6.01" y2="10"/><line x1="10" y1="10" x2="10.01" y2="10"/><line x1="14" y1="10" x2="14.01" y2="10"/><line x1="18" y1="10" x2="18.01" y2="10"/><line x1="7" y1="14" x2="17" y2="14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+  </svg>
+
+  <!-- PIN Screen -->
+  <div id="pin-screen" class="screen pin-screen hidden">
+    <div class="pin-badge"><svg class="icon"><use href="#i-lock"/></svg></div>
+    <h1 class="pin-title" data-i18n="enterPin">Enter PIN</h1>
+    <label class="pin-dots" id="pin-dots">
+      <span></span><span></span><span></span><span></span>
+      <input type="password" id="pin-input" maxlength="4" inputmode="numeric" autocomplete="off" aria-label="PIN">
+    </label>
+    <p id="pin-error" class="pin-error"></p>
+  </div>
+
+  <!-- Main Screen (shown once we know no PIN is needed) -->
+  <div id="main-screen" class="screen hidden">
+    <header class="topbar">
+      <div class="brand">
+        <!-- Ninja: eyes open while disguises are on, asleep when off -->
+        <div class="ninja awake" id="ninja" aria-hidden="true">
+          <div class="ninja-band">
+            <span class="ninja-eye"></span>
+            <span class="ninja-eye"></span>
+          </div>
+        </div>
+        <div>
+          <div class="brand-name" data-i18n="appTitle">Ninja Tab</div>
+          <div class="brand-status" id="brand-status"></div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <label class="switch" data-i18n-title="masterToggle" title="Turn all disguises on or off">
+          <input type="checkbox" id="master-switch" checked>
+          <span class="slider"></span>
+        </label>
+        <button id="open-settings-btn" class="icon-btn ghost" data-i18n-title="settings" title="Settings">
+          <svg class="icon"><use href="#i-settings"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="group">
+      <div class="row">
+        <span class="row-label" data-i18n="autoDeleteHistory">Auto-delete history on close</span>
+        <label class="switch">
+          <input type="checkbox" id="history-switch">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <button id="panic-btn" class="row row-button danger">
+        <svg class="icon"><use href="#i-eye-off"/></svg>
+        <span data-i18n="panicBtn">Hide all matching tabs now</span>
+      </button>
+    </div>
+
+    <section>
+      <h2 class="section-label" data-i18n="addNewRule">New rule</h2>
+      <div class="card form">
+        <div class="field-with-action">
+          <input type="text" id="target-domain" class="field" data-i18n-placeholder="targetDomainPlaceholder" placeholder="Site, e.g. example.com" autocomplete="off">
+          <button id="current-site-btn" class="icon-btn" data-i18n-title="useCurrentSite" title="Use current site">
+            <svg class="icon"><use href="#i-locate"/></svg>
+          </button>
+        </div>
+        <p class="hint" data-i18n="patternHint">*.site.com for subdomains only, site.com/path for one section</p>
+
+        <div class="field-label" data-i18n="disguiseAs">Disguise as</div>
+        <div class="preset-grid" id="preset-grid"></div>
+
+        <input type="text" id="spoof-title" class="field" data-i18n-placeholder="spoofTitlePlaceholder" placeholder="Tab title" autocomplete="off">
+        <div class="field-with-action">
+          <img id="favicon-preview" class="favicon-preview" src="icons/icon16.png" alt="">
+          <input type="text" id="spoof-favicon" class="field with-preview" data-i18n-placeholder="spoofFaviconPlaceholder" placeholder="Icon URL or site" autocomplete="off">
+          <button id="upload-icon-btn" class="icon-btn" data-i18n-title="uploadIcon" title="Upload an image">
+            <svg class="icon"><use href="#i-upload"/></svg>
+          </button>
+          <input type="file" id="upload-icon-input" accept="image/*" hidden>
+        </div>
+
+        <div class="button-row">
+          <button id="cancel-edit-btn" class="btn hidden" data-i18n="cancelEdit">Cancel</button>
+          <button id="add-rule-btn" class="btn primary grow" data-i18n="addRuleBtn">Add rule</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-label"><span data-i18n="activeRules">Rules</span> <span class="count" id="rule-count"></span></h2>
+      <ul id="rules-list" class="rules"></ul>
+      <p id="no-rules" class="empty hidden" data-i18n="noRules">No rules yet. Add a site above to disguise it.</p>
+    </section>
+
+    <footer class="footer">
+      <span class="shortcut"><span data-i18n="bossKey">Boss key</span> <kbd id="boss-key-shortcut"></kbd></span>
+      <div class="segmented" role="group" aria-label="Language">
+        <button class="lang-option" id="lang-en" data-lang="en">EN</button>
+        <button class="lang-option" id="lang-tr" data-lang="tr">TR</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Settings Screen -->
+  <div id="settings-screen" class="screen hidden">
+    <header class="topbar">
+      <div class="brand">
+        <button id="close-settings-btn" class="icon-btn ghost" data-i18n-title="back" title="Back">
+          <svg class="icon"><use href="#i-back"/></svg>
+        </button>
+        <div class="brand-name" data-i18n="settings">Settings</div>
+      </div>
+    </header>
+
+    <section>
+      <h2 class="section-label" data-i18n="security">Security</h2>
+      <div class="group">
+        <div class="row">
+          <span class="row-label" data-i18n="lockWithPin">Lock with PIN</span>
+          <label class="switch">
+            <input type="checkbox" id="pin-switch">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="pin-setup-group" class="row hidden">
+          <input type="password" id="new-pin" class="field grow" maxlength="4" inputmode="numeric" data-i18n-placeholder="enterPinPlaceholder" placeholder="4-digit PIN">
+          <button id="save-pin-btn" class="btn primary" data-i18n="savePin">Save</button>
+        </div>
+        <div id="relock-group" class="row hidden">
+          <span class="row-label" data-i18n="askPinAgain">Ask for PIN again</span>
+          <select id="pin-relock" class="select">
+            <option value="0" data-i18n="relock0">Every time</option>
+            <option value="1" data-i18n="relock1">After 1 minute</option>
+            <option value="5" data-i18n="relock5">After 5 minutes</option>
+            <option value="15" data-i18n="relock15">After 15 minutes</option>
+            <option value="60" data-i18n="relock60">After 1 hour</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-label" data-i18n="disguise">Disguise</h2>
+      <div class="group">
+        <div class="row">
+          <span class="row-label" data-i18n="backgroundOnly">Only when tab is in background</span>
+          <label class="switch">
+            <input type="checkbox" id="disguise-background-switch">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <p class="hint below" data-i18n="backgroundOnlyHint">You see the real page while you're on the tab. It disguises itself when you switch away.</p>
+    </section>
+
+    <section>
+      <h2 class="section-label" data-i18n="bossKeyActionTitle">Boss key</h2>
+      <div class="group">
+        <div class="row">
+          <span class="row-label" data-i18n="actionType">Action</span>
+          <select id="boss-key-action" class="select">
+            <option value="disguise" data-i18n="disguiseTab">Disguise tab</option>
+            <option value="redirect" data-i18n="panicRedirect">Redirect away</option>
+          </select>
+        </div>
+        <div class="row hidden" id="redirect-url-group">
+          <input type="text" id="boss-key-redirect" class="field grow" data-i18n-placeholder="redirectPlaceholder" placeholder="Redirect to, e.g. google.com">
+        </div>
+        <div class="row">
+          <span class="row-label" data-i18n="autoMute">Mute tab</span>
+          <label class="switch">
+            <input type="checkbox" id="boss-key-mute">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="row" id="blur-row">
+          <span class="row-label" data-i18n="blurPage">Blur page content</span>
+          <label class="switch">
+            <input type="checkbox" id="boss-key-blur">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <button id="change-shortcuts-btn" class="row row-button">
+          <svg class="icon"><use href="#i-keyboard"/></svg>
+          <span class="grow" data-i18n="changeShortcuts">Keyboard shortcuts</span>
+          <svg class="icon muted"><use href="#i-chevron"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-label" data-i18n="historyTitle">History</h2>
+      <div class="group">
+        <button id="clean-history-btn" class="row row-button">
+          <svg class="icon"><use href="#i-history"/></svg>
+          <span class="grow" data-i18n="cleanHistoryBtn">Clean matching history now</span>
+        </button>
+      </div>
+      <p class="hint below" data-i18n="cleanHistoryHint">Deletes all past visits to your rule sites, so they also disappear from address-bar suggestions and new-tab shortcuts.</p>
+    </section>
+
+    <section>
+      <h2 class="section-label" data-i18n="backup">Backup</h2>
+      <div class="group">
+        <button id="export-btn" class="row row-button">
+          <svg class="icon"><use href="#i-download"/></svg>
+          <span class="grow" data-i18n="exportBtn">Export rules and settings</span>
+        </button>
+        <button id="import-btn" class="row row-button">
+          <svg class="icon"><use href="#i-upload"/></svg>
+          <span class="grow" data-i18n="importBtn">Import from file</span>
+        </button>
+      </div>
+      <input type="file" id="import-input" accept="application/json,.json" hidden>
+    </section>
+  </div>
+
+  <!-- In-app notification and confirmation (instead of Chrome's alert/confirm boxes) -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <svg class="icon"><use href="#i-check"/></svg>
+    <span id="toast-text"></span>
+  </div>
+
+  <div id="dialog" class="dialog-backdrop hidden">
+    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialog-text">
+      <p id="dialog-text"></p>
+      <div class="button-row">
+        <button id="dialog-cancel" class="btn grow" data-i18n="cancelEdit">Cancel</button>
+        <button id="dialog-confirm" class="btn danger-solid grow"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
