@@ -9,6 +9,11 @@
   Boss Key, panic button, PIN lock and history cleanup. Works in Chrome, Edge, Brave and Opera.
 </p>
 
+<p align="center">
+  <a href="https://omarbassaj.github.io/ninja-tab/"><b>Website</b></a> ·
+  <a href="https://github.com/OmarBassaj/ninja-tab/releases/latest"><b>Download</b></a>
+</p>
+
 ---
 
 ## Features
@@ -29,7 +34,7 @@ The ninja in the toolbar shows the state at a glance: eyes open when Ninja Tab i
 
 Ninja Tab isn't in the Chrome Web Store yet, so you add it by hand:
 
-1. Download `Ninja-Tab-v1.1.0.zip` from the [latest release](../../releases/latest) (or from the website) and unzip it. You'll get a `ninja-tab` folder.
+1. Download `Ninja-Tab-v1.1.0.zip` from the [latest release](../../releases/latest) (or from the [website](https://omarbassaj.github.io/ninja-tab/)) and unzip it. You'll get a `ninja-tab` folder.
 2. Open `chrome://extensions` and turn on **Developer mode** (top right).
 3. Click **Load unpacked** and choose the `ninja-tab` folder.
 
